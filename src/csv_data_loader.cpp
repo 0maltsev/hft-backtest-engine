@@ -11,7 +11,7 @@
 
 namespace backtest {
 
-CsvDataLoader::CsvDataLoader(const std::string& filepath)
+CsvDataLoader::CsvDataLoader(const std::string& filepath) //NOLINT
     : filepath_(filepath) {}
 
 const std::vector<MarketEvent>& CsvDataLoader::load() {
@@ -35,11 +35,11 @@ const std::vector<MarketEvent>& CsvDataLoader::load() {
 
     //TODO На этапах оптимизации заменим на fread() + кольцевой буфер.
     while (std::getline(file, line)) {
-        if (line.empty()) continue;
+        if (line.empty()) {continue;}
 
         // Пропуск заголовка: если первая строка не начинается с цифры, считаем её заголовком
         if (!header_checked) {
-            if (!std::isdigit(static_cast<unsigned char>(line.front()))) {
+            if (std::isdigit(static_cast<unsigned char>(line.front())) == 0) {
                 header_checked = true;
                 continue;
             }
@@ -70,21 +70,21 @@ bool CsvDataLoader::parseLine(std::string_view line, MarketEvent& out) {
 
     //Индекс
     comma_pos = line.find(',', pos);
-    if (comma_pos == std::string_view::npos) return false;
+    if (comma_pos == std::string_view::npos) {return false;}
     pos = comma_pos + 1;
 
     //timestamp_us
     comma_pos = line.find(',', pos);
-    if (comma_pos == std::string_view::npos) return false;
+    if (comma_pos == std::string_view::npos) {return false;}
     std::string_view ts_view = line.substr(pos, comma_pos - pos);
     
     auto [ptr_ts, ec_ts] = std::from_chars(ts_view.data(), ts_view.data() + ts_view.size(), out.timestamp_us);
-    if (ec_ts != std::errc{}) return false;
+    if (ec_ts != std::errc{}) {return false;}
     pos = comma_pos + 1;
 
     //side
     comma_pos = line.find(',', pos);
-    if (comma_pos == std::string_view::npos) return false;
+    if (comma_pos == std::string_view::npos) {return false;}
     std::string_view side_view = line.substr(pos, comma_pos - pos);
     out.side = parseSide(side_view);
     out.type = EventType::Trade;
@@ -92,33 +92,48 @@ bool CsvDataLoader::parseLine(std::string_view line, MarketEvent& out) {
 
     //price
     comma_pos = line.find(',', pos);
-    if (comma_pos == std::string_view::npos) return false;
+    if (comma_pos == std::string_view::npos) { return false; }
     std::string_view price_view = line.substr(pos, comma_pos - pos);
-    
-    char* end_ptr = nullptr;
-    double price_d = std::strtod(price_view.data(), &end_ptr);
-    if (end_ptr == price_view.data()) return false;
-    out.price_ticks = priceToTicks(price_d);
+
+    out.price_ticks = parsePriceFixed(price_view);
     pos = comma_pos + 1;
 
     //amount
     std::string_view amt_view = line.substr(pos);
     auto [ptr_amt, ec_amt] = std::from_chars(amt_view.data(), amt_view.data() + amt_view.size(), out.amount);
-    if (ec_amt != std::errc{}) return false;
-
-    return true;
+    return ec_amt == std::errc{};
 }
 
-int64_t CsvDataLoader::priceToTicks(double price) noexcept {
-    // 7 знаков после запятой. +0.5 для корректного округления.
-    return static_cast<int64_t>(price * 10'000'000.0 + 0.5);
+int64_t CsvDataLoader::parsePriceFixed(std::string_view svw) noexcept {
+    int64_t result = 0;
+    int decimals = 0;
+    bool seen_dot = false;
+    
+    for (char chr : svw) {
+        if (chr == '.') {
+            seen_dot = true;
+        } else if (chr >= '0' && chr <= '9') {
+            result = (result * 10) + (chr - '0');
+            if (seen_dot) {
+                ++decimals;
+            }
+        }
+    }
+    
+    // Добиваем до 7 знаков после запятой
+    while (decimals < 7) {
+        result *= 10;
+        ++decimals;
+    }
+    
+    return result;
 }
 
 Side CsvDataLoader::parseSide(std::string_view token) noexcept {
-    if (token.empty()) return Side::None;
-    const auto c = static_cast<char>(std::tolower(static_cast<unsigned char>(token[0])));
-    if (c == 'b') return Side::Buy;
-    if (c == 's') return Side::Sell;
+    if (token.empty()) {return Side::None;}
+    const auto chr = static_cast<char>(std::tolower(static_cast<unsigned char>(token[0])));
+    if (chr == 'b') {return Side::Buy;}
+    if (chr == 's') {return Side::Sell;}
     return Side::None;
 }
 
