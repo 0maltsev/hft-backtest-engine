@@ -3,7 +3,6 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <cstdint>
 #include "market_event.hpp"
 
 namespace backtest {
