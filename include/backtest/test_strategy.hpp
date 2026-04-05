@@ -1,34 +1,38 @@
 #pragma once
-
 #include "backtest/strategy.hpp"
 #include "execution_engine.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <vector>
 
 namespace backtest {
 
 class TestStrategy : public BasicStrategy {
 public:
     bool verbose = false;
-    int64_t initial_capital_ticks {100'000'000'000};  // 10 000 USD в тиках
-    int64_t commission_bps {10};
-    int32_t order_quantity {100};
-    int64_t take_profit_bps {100};
+    int64_t initial_capital_ticks = 100'000'000'000;
+    int64_t commission_bps = 10;
+    int32_t order_quantity = 100;
+    int64_t take_profit_bps = 20;
+
+    static constexpr int64_t LIMIT_PRICE_BUFFER_BPS = 10;
+    static constexpr int64_t ORDER_TIMEOUT_US = 10'000'000;
 
     struct State {
-        int64_t cash {0};
-        int64_t position {0};
-        int64_t entry_price {0};
-        size_t trades_count {0};
-        size_t buy_events {0};
-        size_t sell_events {0};
-        int64_t realized_pnl {0};
-        int64_t max_drawdown {0};
-        int64_t peak_equity {0};
-        int64_t total_commission {0};
+        int64_t cash = 0;
+        int64_t position = 0;
+        int64_t entry_price = 0;
+        int64_t entry_commission = 0;
+        size_t trades_count = 0;
+        size_t buy_events = 0;
+        size_t sell_events = 0;
+        int64_t realized_pnl = 0;
+        int64_t max_drawdown = 0;
+        int64_t peak_equity = 0;
+        int64_t total_commission = 0;
     };
-
 
     void on_init() noexcept {
         state_ = State{};
@@ -81,17 +85,26 @@ public:
     [[nodiscard]] const State& getState() const noexcept { return state_; }
 
 private:
-
     void checkPendingOrders(const MarketEvent& event) noexcept {
         for (auto& order : pending_orders_) {
             if (!order.isActive()) continue;
+
+            if (state_.position > 0) {
+                order.status = OrderStatus::Cancelled;
+                continue;
+            }
+
+            int64_t order_age_us = event.timestamp_us - order.timestamp_us;
+            if (order_age_us > ORDER_TIMEOUT_US) {
+                order.status = OrderStatus::Cancelled;
+                continue;
+            }
 
             ExecutionReport report = execution_engine_.checkLimitOrder(order, event);
 
             if (report.status == OrderStatus::Filled) {
                 order.status = OrderStatus::Filled;
                 order.filled_qty = report.filled_qty;
-
                 applyExecution(report, order.side);
             }
         }
@@ -104,17 +117,21 @@ private:
     }
 
     void generateBuySignal(const MarketEvent& event) noexcept {
+        if (!pending_orders_.empty()) return;
+
         if (event.side == Side::Sell) {
+            int64_t limit_price = event.price_ticks * (10'000 + LIMIT_PRICE_BUFFER_BPS) / 10'000;
+
             Order order = Order::limit_buy(
-                event.price_ticks,
+                limit_price,
                 order_quantity,
                 next_order_id_++,
                 event.timestamp_us
             );
             pending_orders_.push_back(order);
 
-            if (verbose && pending_orders_.size() % 1000 == 0) {
-                std::cout << "[Strategy] Pending buy order #" << order.order_id
+            if (verbose) {
+                std::cout << "[Strategy] Placed buy order #" << order.order_id
                           << " @ " << order.price_ticks << "\n";
             }
         }
@@ -146,10 +163,16 @@ private:
             state_.cash -= report.filled_qty * report.avg_price + report.commission;
             state_.position += report.filled_qty;
             state_.entry_price = report.avg_price;
+            state_.entry_commission = report.commission;
         } else {
             state_.cash += report.filled_qty * report.avg_price - report.commission;
-            state_.realized_pnl += report.filled_qty * (report.avg_price - state_.entry_price);
+            state_.realized_pnl += report.filled_qty * (report.avg_price - state_.entry_price)
+                                  - report.commission
+                                  - state_.entry_commission;
+
             state_.position = 0;
+            state_.entry_price = 0;
+            state_.entry_commission = 0;
         }
 
         state_.total_commission += report.commission;
@@ -157,6 +180,7 @@ private:
 
         if (verbose && state_.trades_count % 100 == 0) {
             std::cout << "[Strategy] Trade #" << state_.trades_count
+                      << " | Side: " << (side == OrderSide::Buy ? "BUY" : "SELL")
                       << " | PnL: " << static_cast<double>(state_.realized_pnl) / 10'000'000.0
                       << " USD | Commission: " << static_cast<double>(report.commission) / 10'000'000.0
                       << " USD\n";
