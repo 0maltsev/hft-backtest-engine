@@ -1,5 +1,6 @@
 #include "backtest/csv_data_loader.hpp"
 
+#include <algorithm>
 #include <string_view>
 #include <fstream>
 #include <charconv>
@@ -14,7 +15,7 @@ namespace backtest {
 CsvDataLoader::CsvDataLoader(const std::string& filepath) //NOLINT
     : filepath_(filepath) {}
 
-const std::vector<MarketEvent>& CsvDataLoader::load() {
+std::vector<MarketEvent>& CsvDataLoader::load() {
     if (loaded_) {
         return events_;
     }
@@ -58,6 +59,11 @@ const std::vector<MarketEvent>& CsvDataLoader::load() {
             std::cerr << "[WARN] Skipping malformed line: " << line << '\n';
         }
     }
+    
+    std::ranges::sort(events_.begin(), events_.end(),
+    [](const MarketEvent& aEvent, const MarketEvent& bEvent) {
+        return aEvent.timestamp_us < bEvent.timestamp_us;
+    });
 
     loaded_ = true;
     return events_;

@@ -1,26 +1,36 @@
 #include "backtest/csv_data_loader.hpp"
+#include "backtest/replay_engine.hpp"
+#include "backtest/test_strategy.hpp"
 #include <iostream>
 
+
 int main() {
-    backtest::CsvDataLoader loader("MD/trades.csv");
-
-    const auto& events = loader.load();
-
-    std::cout << "sizeof(MarketEvent): " << sizeof(backtest::MarketEvent) << "\n";
-    std::cout << "alignof(MarketEvent): " << alignof(backtest::MarketEvent) << "\n";
-
-    std::cout << "Loaded " << events.size() << " events\n";
-    if (!events.empty()) {
-        std::cout << "First event: ts=" << events[0].timestamp_us 
-                << ", price_ticks=" << events[0].price_ticks << "\n";
+    try {
+        // Загрузка
+        backtest::CsvDataLoader loader("MD/trades.csv");
+        const auto& events = loader.load();
+        
+        std::cout << "Loaded " << events.size() << " events\n";
+        std::cout << "sizeof(MarketEvent): " << sizeof(backtest::MarketEvent) << " bytes\n";
+        std::cout << "alignof(MarketEvent): " << alignof(backtest::MarketEvent) << " bytes\n\n";
+        
+        // Реплей
+        backtest::TestStrategy strategy;
+        backtest::ReplayEngine engine(events, strategy);
+        
+        std::cout << "Starting replay...\n";
+        engine.run();
+        
+        // Статистика
+        std::cout << "Processed: " << engine.processedCount() << " events\n";
+        std::cout << "Elapsed: " << static_cast<double>(engine.elapsedUs()) / 1000.0 << " ms\n";
+        std::cout << "Throughput: " << (static_cast<double>(engine.processedCount()) * 1'000'000.0 / static_cast<double>(engine.elapsedUs())) << " events/sec\n";
+        std::cout << "\nStrategy PnL: " << static_cast<double>(strategy.getRealizedPnl()) / 10'000'000.0 << " USD\n";
+        
+    } catch (const std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << "\n";
+        return 1;
     }
-
-    for (size_t i = 0; i < std::min(events.size(), size_t(5)); ++i) {
-        double price_debug = static_cast<double>(events[i].price_ticks) / 10'000'000;
-        std::cout << "[" << i << "] " << events[i].timestamp_us 
-                << " | " << (events[i].side == backtest::Side::Buy ? "BUY" : "SELL")
-                << " @ " << price_debug << " x " << events[i].amount << "\n";
-    }
-
+    
     return 0;
 }
