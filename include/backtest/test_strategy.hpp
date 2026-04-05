@@ -73,7 +73,6 @@ public:
         std::cout << "Trades:           " << state_.trades_count << "\n";
         std::cout << "Win rate:         " << win_rate << " %\n";
         std::cout << "Buy signals:      " << state_.buy_signals << "\n";
-        std::cout << "PnL (USD):        " << usd(state_.realized_pnl) << "\n";
         std::cout << "Commission (USD): " << usd(state_.total_commission) << "\n";
         std::cout << "Net PnL (USD):    " << usd(state_.realized_pnl) << "\n";
         std::cout << "Max Drawdown:     " << usd(state_.max_drawdown) << "\n";
