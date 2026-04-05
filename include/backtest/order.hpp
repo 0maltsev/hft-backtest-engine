@@ -33,30 +33,24 @@ struct alignas(16) Order {
     OrderStatus status;         //  1   offset  34
     uint8_t     pad_[13];        //  13   offset  35 // NOLINT
 
-    Order() noexcept = default;
-
     [[nodiscard]] static Order limit_buy(int64_t price_ticks, int32_t quantity,
-                                          int64_t order_id, int64_t timestamp_us) noexcept {
-        return Order{order_id, timestamp_us, OrderSide::Buy, OrderType::Limit,
-                     price_ticks, quantity, 0, OrderStatus::New};
+                                      int64_t order_id, int64_t timestamp_us) noexcept {
+        return Order{order_id, timestamp_us, price_ticks, quantity, 0, OrderSide::Buy, OrderType::Limit, OrderStatus::New, {}};
     }
 
     [[nodiscard]] static Order limit_sell(int64_t price_ticks, int32_t quantity,
                                            int64_t order_id, int64_t timestamp_us) noexcept {
-        return Order{order_id, timestamp_us, OrderSide::Sell, OrderType::Limit,
-                     price_ticks, quantity, 0, OrderStatus::New};
+        return Order{order_id, timestamp_us, price_ticks, quantity, 0, OrderSide::Sell, OrderType::Limit, OrderStatus::New, {}};
     }
 
     [[nodiscard]] static Order market_buy(int32_t quantity,
                                            int64_t order_id, int64_t timestamp_us) noexcept {
-        return Order{order_id, timestamp_us, OrderSide::Buy, OrderType::Market,
-                     0, quantity, 0, OrderStatus::New};
+        return Order{order_id, timestamp_us, 0, quantity, 0, OrderSide::Buy, OrderType::Market, OrderStatus::New, {}};
     }
 
     [[nodiscard]] static Order market_sell(int32_t quantity,
                                             int64_t order_id, int64_t timestamp_us) noexcept {
-        return Order{order_id, timestamp_us, OrderSide::Sell, OrderType::Market,
-                     0, quantity, 0, OrderStatus::New};
+        return Order{order_id, timestamp_us, 0, quantity, 0, OrderSide::Sell, OrderType::Market, OrderStatus::New, {}};
     }
 
     [[nodiscard]] int32_t remainingQty() const noexcept {

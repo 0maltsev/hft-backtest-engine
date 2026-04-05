@@ -12,16 +12,16 @@ struct alignas(16) ExecutionReport {
     int64_t     timestamp_us;   //  8   offset  24
     int32_t     filled_qty;     //  4   offset  32
     OrderStatus status;         //  1   offset  36
-    uint8_t     pad_[11];       //  11   offset  37
+    uint8_t     pad_[11];       //  11   offset  37 // NOLINT
 
     [[nodiscard]] static ExecutionReport rejected(int64_t order_id, int64_t timestamp_us) noexcept {
-        return ExecutionReport{order_id, OrderStatus::Rejected, 0, 0, 0, timestamp_us};
+        return ExecutionReport{order_id, 0, 0, timestamp_us, 0, OrderStatus::Rejected, {}};
     }
 
     [[nodiscard]] static ExecutionReport filled(int64_t order_id, int32_t qty,
                                                  int64_t price, int64_t commission,
                                                  int64_t timestamp_us) noexcept {
-        return ExecutionReport{order_id, OrderStatus::Filled, qty, price, commission, timestamp_us};
+        return ExecutionReport{order_id, price, commission, timestamp_us, qty, OrderStatus::Filled, {}};
     }
 };
 
