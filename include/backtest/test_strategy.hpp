@@ -20,11 +20,9 @@ public:
     int64_t window_us             = 500'000;
     double  imbalance_threshold   = 0.65;
 
-    // --- выход ---
     int64_t take_profit_bps       = 15;
     int64_t stop_loss_bps         = 8;
 
-    // --- ордера ---
     static constexpr int64_t ORDER_TIMEOUT_US       = 500'000;   // 0.5 сек
     static constexpr int64_t LIMIT_PRICE_BUFFER_BPS = 5;
 
