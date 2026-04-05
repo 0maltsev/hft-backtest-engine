@@ -12,7 +12,7 @@ class CsvDataLoader {
 public:
     explicit CsvDataLoader(const std::string& filepath);
 
-    const std::vector<MarketEvent>& load();
+    [[nodiscard]] std::vector<MarketEvent>& load();
 
     [[nodiscard]] size_t eventCount() const noexcept;
     [[nodiscard]] int64_t startTime() const noexcept;
