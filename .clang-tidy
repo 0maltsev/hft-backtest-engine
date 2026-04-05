@@ -3,7 +3,7 @@ WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 FormatStyle: file
 CheckOptions:
-  - { key: modernize-use-trailing-return-type, value: 'true' }
+  # - { key: modernize-use-trailing-return-type, value: 'true' }
   - { key: readability-identifier-naming.ClassCase, value: CamelCase }
   - { key: readability-identifier-naming.VariableCase, value: lower_case }
   - { key: readability-identifier-naming.FunctionCase, value: camelCase }
