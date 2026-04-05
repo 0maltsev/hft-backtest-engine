@@ -1,5 +1,6 @@
 #include <cstdint>
 
+namespace backtest {
 enum Side : uint8_t
 {
     None = 0, 
@@ -21,3 +22,4 @@ struct alignas(16) MarketEvent
     Side    side;
     uint8_t pad_[10]; // NOLINT
 };
+}
