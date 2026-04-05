@@ -37,3 +37,5 @@ test_results/
 # Dependencies (если будешь использовать vcpkg/conan локально)
 vcpkg_installed/
 conan/
+
+MD/*.csv
