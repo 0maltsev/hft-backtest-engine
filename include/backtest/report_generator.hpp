@@ -88,7 +88,7 @@ public:
         std::cout << "\n" << std::string(70, '=') << "\n";
     }
 
-    [[nodiscard]] static bool exportCsv(const std::string& filepath,
+    static bool exportCsv(const std::string& filepath,
                                          const TradeLogger& logger) noexcept {
         std::ofstream file(filepath);
         if (!file.is_open()) {
@@ -119,7 +119,7 @@ public:
         return true;
     }
 
-    [[nodiscard]] static bool exportJson(const std::string& filepath,
+    static bool exportJson(const std::string& filepath,
                                           const PnLMetrics& metrics,
                                           const TradeLogger& logger) noexcept {
         std::ofstream file(filepath);
@@ -182,7 +182,7 @@ public:
         return true;
     }
 
-    [[nodiscard]] static bool exportSummary(const std::string& filepath,
+    static bool exportSummary(const std::string& filepath,
                                              const PnLMetrics& metrics) noexcept {
         std::ofstream file(filepath);
         if (!file.is_open()) {

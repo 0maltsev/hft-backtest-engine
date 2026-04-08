@@ -7,17 +7,17 @@
 namespace backtest {
 
 struct TradeRecord {
-    int64_t     trade_id;       // 8 offset: 0
-    int64_t     order_id;       // 8 offset: 8
-    int64_t     timestamp_us;   // 8 offset: 16
-    int64_t     exec_price;     // 8 offset: 24
-    int64_t     commission;     // 8 offset: 32
-    int64_t     entry_price;    // 8 offset: 40
-    int64_t     pnl_ticks;      // 8 offset: 48
-    int64_t     expected_price; // 8 offset: 56
-    int32_t     quantity;       // 4 offset: 64
-    OrderSide   side;           // 1 offset: 68
-    uint8_t     pad_[3];        // 3 offset: 69
+    int64_t     trade_id;       // 8 offset 0
+    int64_t     order_id;       // 8 offset 8
+    int64_t     timestamp_us;   // 8 offset 16
+    int64_t     exec_price;     // 8 offset 24
+    int64_t     commission;     // 8 offset 32
+    int64_t     entry_price;    // 8 offset 40
+    int64_t     pnl_ticks;      // 8 offset 48
+    int64_t     expected_price; // 8 offset 56
+    int32_t     quantity;       // 4 offset 64
+    OrderSide   side;           // 1 offset 68
+    uint8_t     pad_[3];        // 3 offset 69 //NOLINT
 
     constexpr TradeRecord() noexcept = default;
 
