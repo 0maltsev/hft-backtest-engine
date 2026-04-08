@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <array>
 #include <cstdint>
 #include <algorithm>
@@ -16,9 +17,20 @@ public:
     static_assert(std::is_trivially_copyable_v<T>,
                   "T must be trivially copyable for lock-free operation");
 
+    constexpr RingBuffer() noexcept
+        : buffer_(std::make_unique<std::array<T, CAPACITY>>()) {}
+
+    ~RingBuffer() noexcept = default;
+
+    RingBuffer(const RingBuffer&) = delete;
+    RingBuffer& operator=(const RingBuffer&) = delete;
+
+    RingBuffer(RingBuffer&&) noexcept = default;
+    RingBuffer& operator=(RingBuffer&&) noexcept = default;
+
     void push(const T& item) noexcept {
         const size_t index = write_index_ & (CAPACITY - 1);  // Fast modulo
-        buffer_[index] = item;
+        (*buffer_)[index] = item;
         write_index_++;
 
         if (total_count_ < CAPACITY) {
@@ -35,7 +47,7 @@ public:
 
         for (size_t i = 0; i < count; ++i) {
             const size_t index = (start + i) & (CAPACITY - 1);
-            func(buffer_[index]);
+            func((*buffer_)[index]);
         }
     }
 
@@ -62,11 +74,11 @@ public:
     }
 
     [[nodiscard]] const T& operator[](size_t index) const noexcept {
-        return buffer_[(read_index_ + index) & (CAPACITY - 1)];
+        return (*buffer_)[(read_index_ + index) & (CAPACITY - 1)];
     }
 
 private:
-    std::array<T, CAPACITY> buffer_;
+    std::unique_ptr<std::array<T, CAPACITY>> buffer_;
     size_t write_index_ = 0;
     size_t read_index_ = 0;
     size_t total_count_ = 0;
