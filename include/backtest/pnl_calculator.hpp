@@ -2,7 +2,6 @@
 
 #include "backtest/trade_logger.hpp"
 #include "backtest/trade_record.hpp"
-#include <cstdint>
 #include <cmath>
 #include <vector>
 
