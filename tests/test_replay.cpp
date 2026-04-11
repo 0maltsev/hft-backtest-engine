@@ -12,8 +12,8 @@ TEST_CASE("ReplayEngine: processes all events", "[replay]") {
             1000 + i * 1000,
             1'000'000 + i,
             100,
+            EventType::Trade,
             (i % 2 == 0) ? Side::Buy : Side::Sell,
-            EventType::Trade
         });
     }
 
@@ -33,8 +33,8 @@ TEST_CASE("ReplayEngine: max-speed mode is fast", "[replay][performance]") {
             1000 + i * 1000,
             1'000'000,
             100,
+            EventType::Trade,
             Side::Buy,
-            EventType::Trade
         });
     }
 
@@ -59,8 +59,8 @@ TEST_CASE("ReplayEngine: time-controlled mode takes expected time", "[replay]") 
             1000 + i * 1000,
             1'000'000,
             100,
+            EventType::Trade,
             Side::Buy,
-            EventType::Trade
         });
     }
 

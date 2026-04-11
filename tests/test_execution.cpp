@@ -18,7 +18,7 @@ TEST_CASE("ExecutionEngine: Limit Buy Order executes on price cross", "[executio
     );
 
     SECTION("Price above limit → rejected") {
-        MarketEvent event{2000, 1'000'100, 50, Side::Sell, EventType::Trade};
+        MarketEvent event{2000, 1'000'100, 50, EventType::Trade,  Side::Sell};
         auto report = engine.checkLimitOrder(order, event);
 
         REQUIRE(report.status == OrderStatus::Rejected);
@@ -26,7 +26,7 @@ TEST_CASE("ExecutionEngine: Limit Buy Order executes on price cross", "[executio
     }
 
     SECTION("Price equals limit → filled") {
-        MarketEvent event{2000, 1'000'000, 50, Side::Sell, EventType::Trade};
+        MarketEvent event{2000, 1'000'000, 50, EventType::Trade, Side::Sell};
         auto report = engine.checkLimitOrder(order, event);
 
         REQUIRE(report.status == OrderStatus::Filled);
@@ -35,7 +35,7 @@ TEST_CASE("ExecutionEngine: Limit Buy Order executes on price cross", "[executio
     }
 
     SECTION("Price below limit → filled (better price)") {
-        MarketEvent event{2000, 999'900, 50, Side::Sell, EventType::Trade};
+        MarketEvent event{2000, 999'900, 50, EventType::Trade, Side::Sell};
         auto report = engine.checkLimitOrder(order, event);
 
         REQUIRE(report.status == OrderStatus::Filled);
@@ -55,19 +55,19 @@ TEST_CASE("ExecutionEngine: Limit Sell Order executes on price cross", "[executi
     );
 
     SECTION("Price below limit → rejected") {
-        MarketEvent event{2000, 999'900, 50, Side::Buy, EventType::Trade};
+        MarketEvent event{2000, 999'900, 50, EventType::Trade, Side::Buy};
         auto report = engine.checkLimitOrder(order, event);
         REQUIRE(report.status == OrderStatus::Rejected);
     }
 
     SECTION("Price equals limit → filled") {
-        MarketEvent event{2000, 1'000'000, 50, Side::Buy, EventType::Trade};
+        MarketEvent event{2000, 1'000'000, 50, EventType::Trade, Side::Buy};
         auto report = engine.checkLimitOrder(order, event);
         REQUIRE(report.status == OrderStatus::Filled);
     }
 
     SECTION("Price above limit → filled (better price)") {
-        MarketEvent event{2000, 1'000'100, 50, Side::Buy, EventType::Trade};
+        MarketEvent event{2000, 1'000'100, 50, EventType::Trade, Side::Buy};
         auto report = engine.checkLimitOrder(order, event);
         REQUIRE(report.status == OrderStatus::Filled);
         REQUIRE(report.avg_price == 1'000'100);
@@ -78,7 +78,7 @@ TEST_CASE("ExecutionEngine: Market Order executes immediately", "[execution]") {
     ExecutionEngine engine(10);
 
     auto order = Order::market_buy(100, 1, 1000);
-    MarketEvent event{2000, 1'000'000, 50, Side::Sell, EventType::Trade};
+    MarketEvent event{2000, 1'000'000, 50, EventType::Trade, Side::Sell};
 
     auto report = engine.executeMarketOrder(order, event);
 
@@ -95,7 +95,7 @@ TEST_CASE("ExecutionEngine: Inactive order is rejected", "[execution]") {
     auto order = Order::limit_buy(1'000'000, 100, 1, 1000);
     order.status = OrderStatus::Filled;
 
-    MarketEvent event{2000, 1'000'000, 50, Side::Sell, EventType::Trade};
+    MarketEvent event{2000, 1'000'000, 50, EventType::Trade, Side::Sell};
     auto report = engine.checkLimitOrder(order, event);
 
     REQUIRE(report.status == OrderStatus::Rejected);
@@ -105,7 +105,7 @@ TEST_CASE("ExecutionEngine: Commission calculation is correct", "[execution]") {
     ExecutionEngine engine(10);
 
     auto order = Order::market_buy(100, 1, 1000);
-    MarketEvent event{2000, 1'000'000, 50, Side::Sell, EventType::Trade};
+    MarketEvent event{2000, 1'000'000, 50, EventType::Trade, Side::Sell};
 
     auto report = engine.executeMarketOrder(order, event);
 

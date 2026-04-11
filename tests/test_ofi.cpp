@@ -21,8 +21,8 @@ TEST_CASE("OFI: All buy events → positive imbalance", "[ofi]") {
             1000 + i * 100,
             1'000'000,
             100,
+            EventType::Trade,
             Side::Buy,
-            EventType::Trade
         };
         strategy.on_event(event);
     }
@@ -39,8 +39,8 @@ TEST_CASE("OFI: All sell events → negative imbalance", "[ofi]") {
             1000 + i * 100,
             1'000'000,
             100,
+            EventType::Trade,
             Side::Sell,
-            EventType::Trade
         };
         strategy.on_event(event);
     }
@@ -53,8 +53,8 @@ TEST_CASE("OFI: Mixed events → balanced imbalance", "[ofi]") {
     strategy.window_us = 1'000'000;
 
     for (int i = 0; i < 3; ++i) {
-        MarketEvent buy{1000 + i * 100, 1'000'000, 100, Side::Buy, EventType::Trade};
-        MarketEvent sell{1050 + i * 100, 1'000'000, 100, Side::Sell, EventType::Trade};
+        MarketEvent buy{1000 + i * 100, 1'000'000, 100,  EventType::Trade, Side::Buy};
+        MarketEvent sell{1050 + i * 100, 1'000'000, 100, EventType::Trade, Side::Sell};
         strategy.on_event(buy);
         strategy.on_event(sell);
     }
@@ -66,10 +66,10 @@ TEST_CASE("OFI: Old events expire from window", "[ofi]") {
     strategy.on_init();
     strategy.window_us = 500'000;
 
-    MarketEvent e1{0, 1'000'000, 100, Side::Buy, EventType::Trade};
+    MarketEvent e1{0, 1'000'000, 100, EventType::Trade, Side::Buy};
     strategy.on_event(e1);
 
-    MarketEvent e2{600'000, 1'000'000, 100, Side::Sell, EventType::Trade};
+    MarketEvent e2{600'000, 1'000'000, 100, EventType::Trade, Side::Sell};
     strategy.on_event(e2);
 }
 
