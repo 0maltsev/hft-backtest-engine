@@ -1,8 +1,12 @@
 #pragma once
 
-#include "execution_engine.hpp"
-#include "pnl_calculator.hpp"
-#include "report_generator.hpp"
+#include "backtest/strategy.hpp"
+#include "backtest/market_event.hpp"
+#include "backtest/order.hpp"
+#include "backtest/execution_engine.hpp"
+#include "backtest/trade_logger.hpp"
+#include "backtest/pnl_calculator.hpp"
+#include "backtest/report_generator.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -11,7 +15,6 @@
 #include <vector>
 
 namespace backtest {
-struct ExecutionReport;
 
 class TestStrategy : public BasicStrategy {
 public:
