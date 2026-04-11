@@ -1,6 +1,7 @@
 #pragma once
 
 #include "backtest/order.hpp"
+#include "backtest/market_event.hpp"
 #include <cstdint>
 
 namespace backtest {

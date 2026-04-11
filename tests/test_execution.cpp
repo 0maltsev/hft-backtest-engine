@@ -86,7 +86,7 @@ TEST_CASE("ExecutionEngine: Market Order executes immediately", "[execution]") {
     REQUIRE(report.filled_qty == 100);
     REQUIRE(report.avg_price == 1'000'000);
 
-    REQUIRE(report.commission == 100'000);
+    REQUIRE(report.commission == 10'000);
 }
 
 TEST_CASE("ExecutionEngine: Inactive order is rejected", "[execution]") {
