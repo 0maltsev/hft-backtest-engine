@@ -22,7 +22,11 @@ target_link_libraries(hft-tests PRIVATE
 
 target_include_directories(hft-tests PRIVATE
         ${CMAKE_SOURCE_DIR}/include
+        ${catch2_SOURCE_DIR}/src
+        ${catch2_BINARY_DIR}/generated-includes
 )
+
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
 
 include(CTest)
 add_test(

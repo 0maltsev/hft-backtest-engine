@@ -77,7 +77,7 @@ public:
         if (metrics.net_pnl_ticks > 0 && metrics.sharpe_ratio > 1.0) {
             verdict = "PROFITABLE (Good risk-adjusted returns)";
         } else if (metrics.net_pnl_ticks > 0) {
-            verdict = "⚠PROFITABLE (But risk-adjusted returns need improvement)";
+            verdict = "PROFITABLE (But risk-adjusted returns need improvement)";
         } else if (metrics.net_pnl_ticks < 0 && metrics.win_rate > 0.4) {
             verdict = "UNPROFITABLE (High win rate but commission too high)";
         } else {

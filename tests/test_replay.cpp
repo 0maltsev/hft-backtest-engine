@@ -1,3 +1,6 @@
+#include "backtest/replay_engine.hpp"
+#include "backtest/test_strategy.hpp"
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace backtest::test {
