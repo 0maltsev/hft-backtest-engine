@@ -173,6 +173,11 @@ cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
 # Из корня репозитория
 ./build/debug/hft-backtest-engine
 ```
+или
+```bash
+# Из корня репозитория
+./build/release/hft-backtest-engine
+```
 
 Пример вывода:
 
