@@ -13,6 +13,8 @@ option(BUILD_BENCHMARKS "Build benchmarks with Google Benchmark" OFF)
 add_executable(hft-backtest-engine
         src/main.cpp
         src/csv_data_loader.cpp
+        src/strategy_avellaneda.cpp
+        src/strategy_microprice.cpp
 )
 
 target_include_directories(hft-backtest-engine
